@@ -31,7 +31,7 @@ npm install
 echo "🔄 Mengatur PM2..."
 
 # Cek apakah service sudah berjalan di PM2
-if pm2 id translategate-engine > /dev/null 2>&1; then
+if pm2 describe translategate-engine > /dev/null 2>&1; then
     echo "♻️  Mendeteksi proses lama. Me-restart translategate-engine..."
     pm2 restart translategate-engine
 else
