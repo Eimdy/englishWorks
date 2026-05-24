@@ -1,0 +1,9 @@
+node_modules/
+backend/node_modules/
+backend/data.db
+.DS_Store
+*-updater.js
+*-frontend.js
+*-backend.js
+*-revert.js
+*.log
