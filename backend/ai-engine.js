@@ -79,12 +79,12 @@ Gunakan format JSON murni:
 `;
 
 // Gemini Config
-const GEMINI_API_KEY = 'AIzaSyB9chdk_UOT1BX6PrNMHtG8tIOcxn7La-s';
+const GEMINI_API_KEY = '';
 const getGeminiUrl = (model) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
 // SumoPod Config
 const openai = new OpenAI({
-    apiKey: 'sk-Ohgl4gLpcrDfEGujUgD2lg',
+    apiKey: '',
     baseURL: 'https://ai.sumopod.com/v1'
 });
 
