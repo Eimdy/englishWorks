@@ -758,7 +758,12 @@ function renderReviewReport(evaluation) {
 
     const glossaryBlock = glossaryHtml ? `<div class="mt-3 bg-sky-50/60 rounded-xl p-3 border border-sky-100 shadow-sm"><div class="text-[10px] uppercase font-bold text-slate-400 mb-2 flex items-center gap-1"><i class="ri-book-read-line"></i> Idiom Glossary</div>${glossaryHtml}</div>` : '';
 
-    container.querySelector('.native-content').innerHTML = processedNative + glossaryBlock;
+    const nativeContentEl = container.querySelector('.native-content');
+    if (evaluation.status.includes('ROLEPLAY')) {
+        nativeContentEl.parentElement.classList.add('hidden');
+    } else {
+        nativeContentEl.innerHTML = processedNative + glossaryBlock;
+    }
 
     const takeawayEl = container.querySelector('.takeaway-content');
     if (takeawayEl) takeawayEl.innerText = evaluation.key_takeaway || '';

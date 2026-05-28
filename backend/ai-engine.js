@@ -72,7 +72,6 @@ Gunakan format JSON murni:
     }
   ],
   "mastered_concepts": ["kategori_kesalahan_dari_daftar_active_recall_yang_sudah_benar"],
-  "native_refactoring": "Contoh menulis ulang salah satu argumen pengguna agar terdengar lebih profesional (native).",
   "key_takeaway": "Pelajaran terpenting.",
   "next_instruction": "Pesan penutup. DILARANG KERAS MENGHASILKAN SKENARIO ATAU PERTANYAAN BARU DI SINI. Cukup tutup sesinya."
 }
