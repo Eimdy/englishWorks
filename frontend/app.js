@@ -212,9 +212,12 @@ async function handleLogin(e) {
 }
 
 function appendWelcomeMessage() {
+    const existing = document.getElementById('welcome-message');
+    if (existing) existing.remove();
+    
     const div = document.createElement('div');
     div.className = "flex gap-4 max-w-3xl mb-6";
-    // We don't use id="welcome-message" to avoid duplicates, but we update texts explicitly here
+    div.id = 'welcome-message';
     div.innerHTML = `
         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg">
             <i class="ri-robot-2-line text-white"></i>
