@@ -214,7 +214,7 @@ async function handleLogin(e) {
 function appendWelcomeMessage() {
     const existing = document.getElementById('welcome-message');
     if (existing) existing.remove();
-    
+
     const div = document.createElement('div');
     div.className = "flex gap-4 max-w-3xl mb-6";
     div.id = 'welcome-message';
@@ -497,8 +497,9 @@ async function fetchUserState() {
     }
 }
 
-function addMessageToChat(role, text) {
+function addMessageToChat(role, text, customId = null) {
     const div = document.createElement('div');
+    if (customId) div.id = customId;
     div.className = `flex gap-4 max-w-3xl ${role === 'user' ? 'ml-auto flex-row-reverse' : ''} mb-6`;
 
     const icon = role === 'user' ? 'ri-user-line' : 'ri-file-list-3-line';
@@ -533,6 +534,7 @@ function addMessageToChat(role, text) {
 
     chatContainer.appendChild(div);
     chatContainer.scrollTop = chatContainer.scrollHeight;
+    return div;
 }
 
 function addLoadingIndicator() {
@@ -784,7 +786,7 @@ async function submitTranslation() {
 
     if (currentMode === 'roleplay') {
         setUILock(true);
-        addMessageToChat('user', text);
+        const userDiv = addMessageToChat('user', text);
         roleplayHistory.push({ role: 'user', content: text });
         translationInput.value = '';
         translationInput.disabled = true;
@@ -807,6 +809,23 @@ async function submitTranslation() {
             if (res.ok) {
                 totalTokens += data.tokens || 0;
                 updateTokenUI();
+
+                if (data.native_correction && data.native_correction.trim() !== '') {
+                    const correctionBlock = document.createElement('div');
+                    correctionBlock.className = 'mt-3 bg-purple-50/60 rounded-xl p-3 border border-purple-100 shadow-sm';
+                    correctionBlock.innerHTML = `<div class="text-[10px] uppercase font-bold text-purple-400 mb-1 flex items-center gap-1"><i class="ri-magic-line"></i> Quick Correction</div><p class="text-xs text-slate-700 italic">"${data.native_correction}"</p>`;
+
+                    const glassPanel = userDiv.querySelector('.glass-panel');
+                    if (glassPanel) {
+                        const timeDiv = glassPanel.querySelector('.text-right');
+                        if (timeDiv) {
+                            glassPanel.insertBefore(correctionBlock, timeDiv);
+                        } else {
+                            glassPanel.appendChild(correctionBlock);
+                        }
+                    }
+                }
+
                 roleplayHistory.push({ role: 'model', content: data.text });
                 addMessageToChat('system', data.text);
                 translationInput.disabled = false;

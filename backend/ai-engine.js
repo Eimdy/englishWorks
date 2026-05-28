@@ -84,7 +84,7 @@ const getGeminiUrl = (model) => `https://generativelanguage.googleapis.com/v1bet
 
 // SumoPod Config
 const openai = new OpenAI({
-    apiKey: '',
+    apiKey: 'sk-Ohgl4gLpcrDfEGujUgD2lg',
     baseURL: 'https://ai.sumopod.com/v1'
 });
 
@@ -160,7 +160,7 @@ async function generateNextParagraph(currentLevel, topic = 'Bebas', engine = 'ge
 }
 
 async function chatRoleplay(level, scenario, historyArr, engine = 'gemini-3.1-flash-lite', sumopodModel = 'glm-5') {
-    const sysPrompt = `Kamu adalah partner roleplay simulasi kerja profesional berbahasa Inggris.\nSkenario/Peranmu: ${scenario}\nLevel Pengguna Saat Ini: ${level}\nAturan:\n1. Respons percakapan dengan natural layaknya ekspat/kolega kerja (maksimal 2-3 kalimat) SESUAIKAN dengan level CEFR pengguna (${level}). Gunakan kosakata yang relevan dengan level tersebut.\n2. Jangan mengoreksi bahasa Inggris pengguna di tengah percakapan.\n3. Wajib menggunakan bahasa Inggris.\n4. Sisipkan beberapa phrasal verb/idiom bisnis jika memungkinkan (sesuai level), jika tidak jangan memaksakannya.\n5. WAJIB: Setiap menggunakan idiom/phrasal verb, gunakan format: **idiom**{arti singkat Inggris | arti singkat Indonesia}. Contoh: **put off**{to delay | menunda}.`;
+    const sysPrompt = `Kamu adalah partner roleplay simulasi kerja profesional berbahasa Inggris.\nSkenario/Peranmu: ${scenario}\nLevel Pengguna Saat Ini: ${level}\nAturan:\n1. Respons percakapan dengan natural layaknya ekspat/kolega kerja (maksimal 2-3 kalimat) SESUAIKAN dengan level CEFR pengguna (${level}). Gunakan kosakata yang relevan dengan level tersebut.\n2. Wajib menggunakan bahasa Inggris.\n3. Sisipkan beberapa phrasal verb/idiom bisnis jika memungkinkan (sesuai level), jika tidak jangan memaksakannya.\n4. WAJIB: Setiap menggunakan idiom/phrasal verb, gunakan format: **idiom**{arti singkat Inggris | arti singkat Indonesia}. Contoh: **put off**{to delay | menunda}.\n5. Kamu bertugas mengoreksi kalimat terakhir user ke bentuk yang lebih natural/native (native refactoring).\n\nKEMBALIKAN OUTPUT DALAM FORMAT JSON MURNI:\n{\n  "native_correction": "Versi perbaikan dari kalimat terakhir user yang lebih natural/native (kosongkan string jika sudah sempurna).",\n  "reply": "Respons percakapan kamu sebagai partner roleplay."\n}`;
 
     try {
         if (engine === 'sumopod') {
@@ -174,9 +174,20 @@ async function chatRoleplay(level, scenario, historyArr, engine = 'gemini-3.1-fl
             const response = await openai.chat.completions.create({
                 model: sumopodModel,
                 messages: messages,
-                temperature: 0.7
+                temperature: 0.7,
+                response_format: { type: 'json_object' }
             });
-            return { text: response.choices[0].message.content.trim(), tokens: response.usage ? response.usage.total_tokens : 0 };
+            const responseText = response.choices[0].message.content.trim();
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            const jsonString = jsonMatch ? jsonMatch[0] : responseText;
+            let result;
+            try {
+                result = JSON.parse(jsonString);
+            } catch (e) {
+                console.error("Failed to parse JSON (SumoPod). Raw response:", responseText);
+                result = { reply: responseText, native_correction: "" };
+            }
+            return { text: result.reply || responseText, native_correction: result.native_correction || "", tokens: response.usage ? response.usage.total_tokens : 0 };
         } else {
             const contents = historyArr.map(msg => ({ role: msg.role, parts: [{ text: msg.content }] }));
             if (contents.length === 0) contents.push({ role: 'user', parts: [{ text: 'Hello. Let us start the roleplay.' }] });
@@ -184,9 +195,19 @@ async function chatRoleplay(level, scenario, historyArr, engine = 'gemini-3.1-fl
             const response = await axios.post(getGeminiUrl(engine), {
                 systemInstruction: { parts: [{ text: sysPrompt }] },
                 contents: contents,
-                generationConfig: { temperature: 0.7 }
+                generationConfig: { temperature: 0.7, responseMimeType: "application/json" }
             });
-            return { text: response.data.candidates[0].content.parts[0].text.trim(), tokens: response.data.usageMetadata ? response.data.usageMetadata.totalTokenCount : 0 };
+            const responseText = response.data.candidates[0].content.parts[0].text.trim();
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            const jsonString = jsonMatch ? jsonMatch[0] : responseText;
+            let result;
+            try {
+                result = JSON.parse(jsonString);
+            } catch (e) {
+                console.error("Failed to parse JSON (Gemini). Raw response:", responseText);
+                result = { reply: responseText, native_correction: "" };
+            }
+            return { text: result.reply || responseText, native_correction: result.native_correction || "", tokens: response.data.usageMetadata ? response.data.usageMetadata.totalTokenCount : 0 };
         }
     } catch (error) {
         console.error("AI Roleplay Error:", error.response ? error.response.data : error.message);

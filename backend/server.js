@@ -213,7 +213,7 @@ app.post('/api/roleplay/chat', async (req, res) => {
         if (aiResponse.tokens) {
             db.prepare('UPDATE users SET tokens_used = tokens_used + ? WHERE id = ?').run(aiResponse.tokens, user.id);
         }
-        res.json({ text: aiResponse.text, tokens: aiResponse.tokens });
+        res.json({ text: aiResponse.text, native_correction: aiResponse.native_correction, tokens: aiResponse.tokens });
     } catch (error) {
         res.status(500).json({ error: 'Gagal memproses roleplay: ' + error.message });
     }
