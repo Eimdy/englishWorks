@@ -27,7 +27,19 @@ function initDb() {
             native_refactoring TEXT,
             key_takeaway TEXT,
             next_instruction TEXT,
+            tone_suggestion TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS user_mistakes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            mistake_category TEXT,
+            wrong_word TEXT,
+            correct_word TEXT,
+            weight INTEGER DEFAULT 3,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
     `);
 
@@ -38,10 +50,8 @@ function initDb() {
         db.prepare("ALTER TABLE users ADD COLUMN tokens_used INTEGER DEFAULT 0").run();
     } catch (err) {}
     try { db.prepare("ALTER TABLE history ADD COLUMN overall_feedback TEXT").run(); } catch (err) {}
-    try { db.prepare("ALTER TABLE history ADD COLUMN key_takeaway TEXT").run();
-    } catch (err) {
-        // Column probably already exists, ignore
-    }
+    try { db.prepare("ALTER TABLE history ADD COLUMN key_takeaway TEXT").run(); } catch (err) {}
+    try { db.prepare("ALTER TABLE history ADD COLUMN tone_suggestion TEXT").run(); } catch (err) {}
 }
 
 module.exports = {

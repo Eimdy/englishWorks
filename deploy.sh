@@ -11,7 +11,11 @@ if [ ! -d "backend" ]; then
     exit 1
 fi
 
-# 2. Cek apakah PM2 sudah terinstal
+# 2. Menarik pembaruan terbaru dari repositori Git
+echo "⬇️  Mengunduh pembaruan terbaru dari Git..."
+git pull origin main || echo "⚠️  Catatan: Gagal melakukan git pull. Pastikan konfigurasi git sudah benar, atau abaikan jika Anda me-replace file secara manual."
+
+# 3. Cek apakah PM2 sudah terinstal
 if ! command -v pm2 &> /dev/null
 then
     echo "📦 PM2 belum terinstal. Sedang menginstal PM2 secara global..."
@@ -20,14 +24,14 @@ else
     echo "✅ PM2 sudah terinstal."
 fi
 
-# 3. Masuk ke folder backend dan instal dependensi
+# 4. Masuk ke folder backend dan instal dependensi
 echo "📂 Masuk ke direktori backend..."
 cd backend
 
 echo "📦 Menginstal/Memperbarui dependensi NPM..."
 npm install
 
-# 4. Menjalankan atau Merestart PM2
+# 5. Menjalankan atau Merestart PM2
 echo "🔄 Mengatur PM2..."
 
 # Cek apakah service sudah berjalan di PM2
