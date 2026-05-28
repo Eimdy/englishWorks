@@ -168,7 +168,7 @@ app.post('/api/evaluate', async (req, res) => {
         if (Array.isArray(evaluation.grammar_analysis) && evaluation.grammar_analysis.length > 0) {
             for (const mistake of evaluation.grammar_analysis) {
                 if (!mistake || !mistake.type) continue;
-                const existing = db.prepare('SELECT id, weight FROM user_mistakes WHERE user_id = ? AND mistake_category = ?').get(user.id, mistake.type);
+                const existing = db.prepare('SELECT id, weight FROM user_mistakes WHERE user_id = ? AND LOWER(mistake_category) = LOWER(?)').get(user.id, mistake.type);
                 if (existing) {
                     db.prepare('UPDATE user_mistakes SET weight = weight + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(existing.id);
                 } else {
@@ -181,7 +181,7 @@ app.post('/api/evaluate', async (req, res) => {
         if (Array.isArray(evaluation.mastered_concepts) && evaluation.mastered_concepts.length > 0) {
             for (const category of evaluation.mastered_concepts) {
                 if (typeof category !== 'string') continue;
-                db.prepare('UPDATE user_mistakes SET weight = weight - 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND mistake_category = ? AND weight > 0').run(user.id, category);
+                db.prepare('UPDATE user_mistakes SET weight = weight - 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND LOWER(mistake_category) = LOWER(?) AND weight > 0').run(user.id, category);
             }
         }
 
@@ -241,7 +241,7 @@ app.post('/api/roleplay/evaluate', async (req, res) => {
         if (Array.isArray(evaluation.grammar_analysis) && evaluation.grammar_analysis.length > 0) {
             for (const mistake of evaluation.grammar_analysis) {
                 if (!mistake || !mistake.type) continue;
-                const existing = db.prepare('SELECT id, weight FROM user_mistakes WHERE user_id = ? AND mistake_category = ?').get(user.id, mistake.type);
+                const existing = db.prepare('SELECT id, weight FROM user_mistakes WHERE user_id = ? AND LOWER(mistake_category) = LOWER(?)').get(user.id, mistake.type);
                 if (existing) {
                     db.prepare('UPDATE user_mistakes SET weight = weight + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(existing.id);
                 } else {
@@ -253,7 +253,7 @@ app.post('/api/roleplay/evaluate', async (req, res) => {
         if (Array.isArray(evaluation.mastered_concepts) && evaluation.mastered_concepts.length > 0) {
             for (const category of evaluation.mastered_concepts) {
                 if (typeof category !== 'string') continue;
-                db.prepare('UPDATE user_mistakes SET weight = weight - 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND mistake_category = ? AND weight > 0').run(user.id, category);
+                db.prepare('UPDATE user_mistakes SET weight = weight - 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND LOWER(mistake_category) = LOWER(?) AND weight > 0').run(user.id, category);
             }
         }
 
